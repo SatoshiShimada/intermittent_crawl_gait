@@ -107,6 +107,51 @@ def tangent(circle, angle):
     c = - circle.r ** 2
     return Line(a, b, c)
 
+class V(object):
+    def __init__(self, Q, R, U):
+        self.__Q = Q
+        self.__R = R
+        self.__U = U
+
+    @property
+    def Q(self):
+        return self.__Q
+
+    @property
+    def R(self):
+        return self.__R
+
+    @property
+    def U(self):
+        return self.__U
+
+    def get_length(self):
+        return distance(self.__Q, self.__U)
+
+orig_Q, orig_U = range(2)
+def reflect(v, orig_mode, reflection=True):
+    Q = v.Q
+    U = v.U
+    if reflection:
+        Qx = -(v.Q.x - v.R.x) + v.R.x
+        Qy = -(v.Q.y - v.R.y) + v.R.y
+        Q = Point(Qx, Qy)
+        Ux = -(v.U.x - v.R.x) + v.R.x
+        Uy = -(v.U.y - v.R.y) + v.R.y
+        U = Point(Ux, Uy)
+    if orig_mode == orig_Q:
+        Tx =   U.x - Q.x
+        Ty =   U.y - Q.y
+        Rx = v.R.x - Q.x
+        Ry = v.R.y - Q.y
+        return Tx, Ty, Rx, Ry
+    elif orig_mode == orig_U:
+        Tx =   Q.x - U.x
+        Ty =   Q.y - U.y
+        Rx = v.R.x - U.x
+        Ry = v.R.y - U.y
+        return Tx, Ty, Rx, Ry
+
 def main():
     center = Point(0, 0)
     radius = 70
