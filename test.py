@@ -50,31 +50,42 @@ def touch(circle, line):
         return True
 
 def main():
-    fig = plot.Figure()
+    Sne = 70
+    leg_x = 150
+    leg_y = 120
+    leg_radius = 130
+
     center = Point(0, 0)
-    fig.drawPoint(center)
-    Sne = 50
     circle = Circle(center, Sne)
 
-    center_f = Point(150, 100)
-    center_r = Point(-150, 100)
-    center_ff = Point(150, -100)
-    center_rr = Point(-150, -100)
+    center_f = Point(leg_x, leg_y)
+    center_r = Point(-leg_x, leg_y)
+    center_ff = Point(leg_x, -leg_y)
+    center_rr = Point(-leg_x, -leg_y)
 
-    leg_radius = 90
     circle_f = Circle(center_f, leg_radius)
     circle_r = Circle(center_r, leg_radius)
     circle_ff = Circle(center_ff, leg_radius)
     circle_rr = Circle(center_rr, leg_radius)
 
+    rx = leg_x * 2 + leg_radius
+    ry = leg_y * 2 + leg_radius
+    fig = plot.Figure(((-rx, rx), (-ry, ry)))
+
+    fig.drawCircle(circle, color='black')
     fig.drawCircle(circle_f, color='black')
     fig.drawCircle(circle_r, color='black')
     fig.drawCircle(circle_ff, color='black')
     fig.drawCircle(circle_rr, color='black')
 
+    # draw robot
+    fig.drawLineP(Point(leg_x, leg_y), Point(-leg_x, leg_y), color='orange')
+    fig.drawLineP(Point(-leg_x, leg_y), Point(-leg_x, -leg_y), color='orange')
+    fig.drawLineP(Point(-leg_x, -leg_y), Point(leg_x, -leg_y), color='orange')
+    fig.drawLineP(Point(leg_x, -leg_y), Point(leg_x, leg_y), color='orange')
+
     EPPSL1, EPPSL2 = [], []
-    point_f, point_r, point_ff, point_rr = [], [], [], []
-    for angle in np.arange(0, 180, 3.0):
+    for angle in np.arange(0, 180, 3.0): # from 0 to 180 degree by step 3.0 degree
         theta1 = radian(angle)
         theta2 = radian(angle) + np.pi
         tangent_line1 = tangent(circle, theta1)
@@ -107,7 +118,6 @@ def main():
             l = drift(ls_rr, dist)
             best_Rf = intersectionPointLineLine(l, ls_ff)
             Vf = V(best_Qf, best_Rf, best_Uf)
-            #fig.drawV(Vf)
             # rr leg
             best_Qrr, best_Urr, best_Rrr = None, None, None
             best_dist = 0.0
@@ -123,7 +133,6 @@ def main():
             l = drift(ls_f, dist)
             best_Rrr = intersectionPointLineLine(l, ls_r)
             Vrr = V(best_Qrr, best_Rrr, best_Urr)
-            #fig.drawV(Vrr)
             # ff leg
             best_Qff, best_Uff, best_Rff = None, None, None
             best_dist = 0.0
@@ -139,7 +148,6 @@ def main():
             l = drift(ls_r, dist)
             best_Rff = intersectionPointLineLine(l, ls_f)
             Vff = V(best_Qff, best_Rff, best_Uff)
-            #fig.drawV(Vff)
             # r leg
             best_Qr, best_Ur, best_Rr = None, None, None
             best_dist = 0.0
@@ -155,7 +163,6 @@ def main():
             l = drift(ls_ff, dist)
             best_Rr = intersectionPointLineLine(l, ls_rr)
             Vr = V(best_Qr, best_Rr, best_Ur)
-            #fig.drawV(Vr)
             # common leg trajectry
             len_f = Vf.get_length()
             len_rr = Vrr.get_length()
@@ -170,19 +177,6 @@ def main():
                 ref = reflect(Vf, orig_Q)
                 in_rr, _Vrr = inside(circle_rr, ls_ff, ref, orig_Q)
                 if in_r and in_ff and in_rr:
-                    #candidacy.append((F, Vf))
-                    if best_len > common_leg_len:
-                        common_leg_V = (Vf, _Vr, _Vff, _Vrr, ls_f, ls_r, ls_ff, ls_rr)
-                        common_leg_len = best_len
-            elif best_len == len_rr:
-                ref = reflect(Vrr, orig_Q)
-                in_f, _Vf = inside(circle_f, ls_r, ref, orig_Q)
-                ref = reflect(Vrr, orig_U, reflection=False)
-                in_ff, _Vff = inside(circle_ff, ls_rr, ref, orig_U)
-                ref = reflect(Vrr, orig_U)
-                in_r, _Vr = inside(circle_r, ls_f, ref, orig_U)
-                if in_f and in_ff and in_r:
-                    #candidacy.append((RR, Vrr))
                     if best_len > common_leg_len:
                         common_leg_V = (_Vf, _Vr, _Vff, Vrr, ls_f, ls_r, ls_ff, ls_rr)
                         common_leg_len = best_len
@@ -194,7 +188,6 @@ def main():
                 ref = reflect(Vf, orig_Q, reflection=False)
                 in_rr, _Vrr = inside(circle_rr, ls_ff, ref, orig_Q)
                 if in_f and in_r and in_rr:
-                    #candidacy.append((FF, Vff))
                     if best_len > common_leg_len:
                         common_leg_V = (_Vf, _Vr, Vff, _Vrr, ls_f, ls_r, ls_ff, ls_rr)
                         common_leg_len = best_len
@@ -205,13 +198,21 @@ def main():
                 in_ff, _Vff = inside(circle_ff, ls_rr, ref, orig_U)
                 ref = reflect(Vr, orig_Q)
                 in_rr, _Vrr = inside(circle_rr, ls_ff, ref, orig_Q)
-                if in_f and in_ff and in_r:
-                    #candidacy.append((R, Vr))
+                if in_f and in_ff and in_rr:
                     if best_len > common_leg_len:
                         common_leg_V = (_Vf, Vr, _Vff, _Vrr, ls_f, ls_r, ls_ff, ls_rr)
                         common_leg_len = best_len
 
+    if not common_leg_V:
+        print("No leg tragectry generated!")
+        return
+
     Vf, Vr, Vff, Vrr, ls_f, ls_r, ls_ff, ls_rr = common_leg_V
+    print("Vf: " + str(Vf))
+    print("Vr: " + str(Vr))
+    print("Vff: " + str(Vff))
+    print("Vrr: " + str(Vrr))
+
     fig.drawV(Vf)
     fig.drawV(Vr)
     fig.drawV(Vff)
@@ -221,7 +222,7 @@ def main():
     fig.drawLine(ls_ff, color='green')
     fig.drawLine(ls_rr, color='green')
 
-    fig.drawCircle(circle, color='black')
+    fig.set_title("Sne: {}".format(Sne))
     fig.show()
 
 if __name__ == '__main__':

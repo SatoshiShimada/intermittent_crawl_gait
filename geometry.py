@@ -113,6 +113,9 @@ class V(object):
         self.__R = R
         self.__U = U
 
+    def __str__(self):
+        return "Q: {}, R: {}, U: {}".format(str(self.__Q), str(self.__R), str(self.__U))
+
     @property
     def Q(self):
         return self.__Q

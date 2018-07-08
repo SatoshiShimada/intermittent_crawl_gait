@@ -2,9 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Figure(object):
-    def __init__(self):
-        self.x_range = (-250, 250)
-        self.y_range = (-200, 200)
+    def __init__(self, _range=None):
+        self.__title = None
+        if _range:
+            self.x_range = _range[0]
+            self.y_range = _range[1]
+        else:
+            self.x_range = (-250, 250)
+            self.y_range = (-200, 200)
         fig = plt.figure()
         self.ax = fig.add_subplot(111)
 
@@ -37,8 +42,13 @@ class Figure(object):
         self.drawLineP(v.Q, v.R)
         self.drawLineP(v.R, v.U)
 
+    def set_title(self, title):
+        self.__title = title
+
     def show(self):
         self.ax.set_xlim(self.x_range[0], self.x_range[1])
         self.ax.set_ylim(self.y_range[0], self.y_range[1])
+        if self.__title:
+            plt.title(self.__title)
         plt.show()
 
