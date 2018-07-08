@@ -35,10 +35,9 @@ class Line(object):
         return "a: {}, b: {}, c: {}".format(self.__a, self.__b, self.__c)
 
     def __call__(self, x):
-        b = self.__b
-        if b == 0.0:
-            b = 1e-8
-        y = -(self.__a / b) * x - (self.__c / b)
+        if self.__b == 0.0:
+            return np.inf
+        y = -(self.__a / self.__b) * x - (self.__c / self.__b)
         return y
 
     def get(self):
@@ -56,6 +55,12 @@ class Line(object):
     def c(self):
         return self.__c
 
+    @property
+    def gradient(self):
+        if self.__b == 0.0:
+            return np.inf
+        return -self.__a / self.__b
+
 class Circle(object):
     def __init__(self, center, r):
         self.__center = center
@@ -68,6 +73,10 @@ class Circle(object):
     @property
     def r(self):
         return self.__r
+
+def distance(p1, p2):
+    distance = np.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+    return distance
 
 def distanceLinePoint(line, point):
     distance = abs(line.a * point.x + line.b * point.y + line.c) / np.sqrt(line.a ** 2 + line.b ** 2)
@@ -86,6 +95,8 @@ def intersectionPointCircleLine(circle, line):
     return p0, p1
 
 def intersectionPointLineLine(line1, line2):
+    if line1.a * line2.b - line2.a * line1.b == 0:
+        print(str(line1) + " " + str(line2))
     x = (line1.b * line2.c - line2.b * line1.c) / (line1.a * line2.b - line2.a * line1.b)
     y = (line2.a * line1.c - line1.a * line2.c) / (line1.a * line2.b - line2.a * line1.b)
     return Point(x, y)
