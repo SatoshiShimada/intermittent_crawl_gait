@@ -42,6 +42,20 @@ class Figure(object):
         self.drawLineP(v.Q, v.R)
         self.drawLineP(v.R, v.U)
 
+    def drawEllipse(self, ellipse, color='red'):
+        x = np.arange(-ellipse.a, ellipse.a, ellipse.a / 100.0)
+        xx1, xx2 = [], []
+        yy1, yy2 = [], []
+        for i in x:
+            y1, y2 = ellipse(i)
+            xx1.append(i + ellipse.center.x)
+            xx2.append(i + ellipse.center.x)
+            yy1.append(y1 + ellipse.center.y)
+            yy2.append(y2 + ellipse.center.y)
+        xx = xx1 + list(reversed(xx2))
+        yy = yy1 + list(reversed(yy2))
+        self.ax.plot(np.array(xx), np.array(yy), color=color)
+        
     def set_title(self, title):
         self.__title = title
 

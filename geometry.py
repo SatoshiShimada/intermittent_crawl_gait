@@ -61,6 +61,14 @@ class Line(object):
             return np.inf
         return -self.__a / self.__b
 
+    @property
+    def intercept(self):
+        if self.__c == 0.0:
+            return 0.0
+        if self.__b == 0.0:
+            return np.inf
+        return -(self.__c / self.__b)
+
 class Circle(object):
     def __init__(self, center, r):
         self.__center = center
@@ -73,6 +81,38 @@ class Circle(object):
     @property
     def r(self):
         return self.__r
+
+class Ellipse(object):
+    def __init__(self, center, a, b):
+        self.__center = center
+        self.__a = a
+        self.__b = b
+        self.__ry = 2.0 * b
+        self.__rx = 2.0 * a
+
+    def __call__(self, x):
+        y = np.sqrt(self.__b ** 2 * (1.0 - (x ** 2 / self.__a ** 2)))
+        return y, -y
+
+    @property
+    def center(self):
+        return self.__center
+
+    @property
+    def a(self):
+        return self.__a
+
+    @property
+    def b(self):
+        return self.__b
+
+    @property
+    def rx(self):
+        return self.__rx
+
+    @property
+    def ry(self):
+        return self.__ry
 
 def distance(p1, p2):
     distance = np.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
@@ -93,6 +133,23 @@ def intersectionPointCircleLine(circle, line):
     p0 = Point(x0, y0)
     p1 = Point(x1, y1)
     return p0, p1
+
+def intersectionPointEllipseLine(ellipse, line):
+    A = (1.0 / ellipse.a ** 2) + (line.gradient ** 2 / ellipse.b ** 2)
+    B = (1.0 / ellipse.a ** 2) * -2.0 * ellipse.center.x + (1.0 / ellipse.b ** 2) * 2.0 * line.gradient * (line.intercept - ellipse.center.y)
+    #C = (1.0 / ellipse.a ** 2) * ellipse.b ** 2 + (1.0 / ellipse.b ** 2) * (line.intercept ** 2 - ellipse.center.y ** 2 - 2.0 * line.intercept * ellipse.center.y) - 1.0
+    C = (1.0 / ellipse.a ** 2) * ellipse.center.x ** 2 + (1.0 / ellipse.b ** 2) * (line.intercept ** 2 + ellipse.center.y ** 2 - 2.0 * line.intercept * ellipse.center.y) - 1.0
+    D = B ** 2 - 4.0 * A * C
+    print("D: {}".format(D))
+    if D < 0:
+        return []
+    elif D == 0.0:
+        x = -B / (2.0 * A)
+        return Point(x, line(x))
+    else:
+        x1 = (-B + np.sqrt(D)) / (2.0 * A)
+        x2 = (-B - np.sqrt(D)) / (2.0 * A)
+        return Point(x1, line(x1)), Point(x2, line(x2))
 
 def intersectionPointLineLine(line1, line2):
     if line1.a * line2.b - line2.a * line1.b == 0:
