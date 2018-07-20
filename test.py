@@ -51,8 +51,8 @@ def touch(circle, line):
 
 def main():
     Sne = 70
-    leg_x = 150
-    leg_y = 120
+    leg_x = 190
+    leg_y = 140
     leg_radius = 130
 
     center = Point(0, 0)
@@ -85,7 +85,7 @@ def main():
     fig.drawLineP(Point(leg_x, -leg_y), Point(leg_x, leg_y), color='orange')
 
     EPPSL1, EPPSL2 = [], []
-    for angle in np.arange(0, 180, 3.0): # from 0 to 180 degree by step 3.0 degree
+    for angle in np.arange(0, 180, 5.0): # from 0 to 180 degree by step 3.0 degree
         theta1 = radian(angle)
         theta2 = radian(angle) + np.pi
         tangent_line1 = tangent(circle, theta1)
@@ -208,10 +208,14 @@ def main():
         return
 
     Vf, Vr, Vff, Vrr, ls_f, ls_r, ls_ff, ls_rr = common_leg_V
-    print("Vf: " + str(Vf))
-    print("Vr: " + str(Vr))
-    print("Vff: " + str(Vff))
-    print("Vrr: " + str(Vrr))
+    #print("Vf: " + str(Vf))
+    #print("Vr: " + str(Vr))
+    #print("Vff: " + str(Vff))
+    #print("Vrr: " + str(Vrr))
+    print(Vf.dump())
+    print(Vr.dump())
+    print(Vff.dump())
+    print(Vrr.dump())
 
     fig.drawV(Vf)
     fig.drawV(Vr)
