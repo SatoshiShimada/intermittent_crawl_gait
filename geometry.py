@@ -135,17 +135,17 @@ def intersectionPointCircleLine(circle, line):
     return p0, p1
 
 def intersectionPointEllipseLine(ellipse, line):
+    if line.gradient == np.inf:
+        return []
     A = (1.0 / ellipse.a ** 2) + (line.gradient ** 2 / ellipse.b ** 2)
     B = (1.0 / ellipse.a ** 2) * -2.0 * ellipse.center.x + (1.0 / ellipse.b ** 2) * 2.0 * line.gradient * (line.intercept - ellipse.center.y)
-    #C = (1.0 / ellipse.a ** 2) * ellipse.b ** 2 + (1.0 / ellipse.b ** 2) * (line.intercept ** 2 - ellipse.center.y ** 2 - 2.0 * line.intercept * ellipse.center.y) - 1.0
     C = (1.0 / ellipse.a ** 2) * ellipse.center.x ** 2 + (1.0 / ellipse.b ** 2) * (line.intercept ** 2 + ellipse.center.y ** 2 - 2.0 * line.intercept * ellipse.center.y) - 1.0
     D = B ** 2 - 4.0 * A * C
-    print("D: {}".format(D))
     if D < 0:
         return []
     elif D == 0.0:
         x = -B / (2.0 * A)
-        return Point(x, line(x))
+        return Point(x, line(x)),
     else:
         x1 = (-B + np.sqrt(D)) / (2.0 * A)
         x2 = (-B - np.sqrt(D)) / (2.0 * A)
